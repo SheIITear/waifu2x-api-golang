@@ -10,8 +10,6 @@ Then run RUNME.sh to create needed directories and move files:
 > sudo RUNME.sh
 
 Lastly to run the api itself:
-> go get github.com/gookit/color
-
-> go get github.com/gorilla/mux
+> sudo go get github.com/gookit/color && sudo go get github.com/gorilla/mux
 
 > sudo go run main.go
