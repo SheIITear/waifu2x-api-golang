@@ -14,4 +14,4 @@ Lastly to run the api itself:
 
 > go get github.com/gorilla/mux
 
-> go run main.go
+> sudo go run main.go
