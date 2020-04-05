@@ -4,4 +4,4 @@ This is a bit edited version from https://github.com/nothink/docker-waifu2x-conv
 To build the driver run:
 > sudo apt install beignet-opencl-icd opencl-headers 
 
-> cd driver && sudo ./build-opencv.sh && sudo ./build.sh
+> cd waifu2x && sudo ./build-opencv.sh && sudo ./build.sh
