@@ -5,3 +5,10 @@ To build the driver run:
 > sudo apt install beignet-opencl-icd opencl-headers 
 
 > cd waifu2x && sudo ./build-opencv.sh && sudo ./build.sh
+
+To run the api run:
+> go get github.com/gookit/color
+
+> go get github.com/gorilla/mux
+
+> go run main.go
