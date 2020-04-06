@@ -1,6 +1,15 @@
 # waifu2x-api-golang
 This is a bit edited version from https://github.com/nothink/docker-waifu2x-converter-cpp and https://github.com/gladkikhartem/waifurun that runs on ubuntu and doesn't require gpu.
 
+Requirements:
+
+> cmake
+> golang
+
+Before you can run the .sh files, you need to make them runable by running:
+
+> chmod +x script.sh
+
 To run this, first build the driver:
 > sudo apt install beignet-opencl-icd opencl-headers 
 
