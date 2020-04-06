@@ -11,7 +11,7 @@ Before you can run the .sh files, you need to make them runable by running:
 > chmod +x script.sh
 
 To run this, first build the driver:
-> ssudo apt install ocl-icd-opencl-dev
+´´sudo apt install ocl-icd-opencl-dev´´
 
 > cd waifu2x && sudo ./build-opencv.sh && sudo ./build.sh
 
