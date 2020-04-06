@@ -3,7 +3,7 @@ This is a bit edited version from https://github.com/nothink/docker-waifu2x-conv
 
 Requirements:
 
-> cmake
+> cmake,
 > golang
 
 Before you can run the .sh files, you need to make them runable by running:
