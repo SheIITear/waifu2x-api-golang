@@ -1,6 +1,8 @@
 # waifu2x-api-golang
 This is a bit edited version from https://github.com/nothink/docker-waifu2x-converter-cpp and https://github.com/gladkikhartem/waifurun that runs on ubuntu and doesn't require gpu.
 
+It can be tested on: https://upgradewaifu.gq
+
 Requirements:
 
 > cmake +3.8 and 
