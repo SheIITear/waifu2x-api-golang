@@ -22,33 +22,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func form(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, `<!DOCTYPE html>
-	<html>
-		<!-- By ShellTear -->
-			<title>waifu upgrader</title>
-				<style>
-					body {
-						background-image: url('https://images.wallpapersden.com/image/download/blonde-blue-eye-anime-girl_65536_2560x1440.jpg');
-						background-attachment: fixed;
-						background-size: cover;
-						background-position: center center;
-						background-repeat: no-repeat;
-					}
-				</style>
-					<center>
-						<h1><color style="color:blue">By ShellTear. Webp files have high chance of failing, so please avoid using them.</color></h1>
-							<form action="/convert" method="post" enctype="multipart/form-data">
-							  <input type="file" name="file" accept="image/*">
-	 							 <input type="submit">
-							</form>
-					</center>
-					</body>
-	</html>
-	`)
-}
-
+// check the string aka files
 func checkSubstrings(str string, subs ...string) (bool, int) {
 
 	matches := 0
@@ -68,16 +42,21 @@ func checkSubstrings(str string, subs ...string) (bool, int) {
 	return isCompleteMatch, matches
 }
 
+// do the actual job
 func convert(w http.ResponseWriter, r *http.Request) {
+
+	// set max size and get the size of uploaded file
 	var maxSize int64 = 4
 	var sizembs = r.ContentLength / 1024 / 1024
 
+	// check that the size is smaller than provided on upper variable
 	if r.ContentLength <= 0 {
 		w.WriteHeader(400)
 		fmt.Fprintf(w, "Only fixed-size files are allowed")
 		return
 	}
 
+	// if size is bigger than allowed
 	if r.ContentLength > maxSize*1024*1024 {
 		gg.Blue.Println("file size is too big:", sizembs)
 		w.WriteHeader(400)
@@ -110,8 +89,10 @@ func convert(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "read: %v", err)
 		return
 	}
+
+	// check that the file extension is allowed
 	ext := filepath.Ext(header.Filename)
-	inFile := fmt.Sprintf("/data/%v_%v", rand.Int63(), header.Filename) // TODO: fix security
+	inFile := fmt.Sprintf("/data/%v_%v", rand.Int63(), header.Filename)
 	isCompleteMatch1, matches1 := checkSubstrings(ext, ".jpeg", ".webp", ".jpg", ".png")
 	outFile := fmt.Sprintf("/data/%v_out.png", rand.Int63())
 
@@ -149,6 +130,7 @@ func convert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// run the upscaling command
 	cmd := exec.Command("/opt/waifu2x-cpp/waifu2x-converter-cpp", fmt.Sprintf("-i %v", inFile), fmt.Sprintf("-o %v", outFile))
 	out, err := cmd.CombinedOutput()
 
@@ -158,7 +140,7 @@ func convert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// log.Print("waifu: ", string(out))
+	// print result
 	gg.Green.Println("successfully enhanced -> " + header.Filename)
 	gg.Blue.Println("converting to jpg and uploading...")
 	data, err = ioutil.ReadFile(outFile)
@@ -177,6 +159,7 @@ func convert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// create jpg from upscaled (save space etc)
 	newImg := image.NewRGBA(imgSrc.Bounds())
 	draw.Draw(newImg, newImg.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
 	draw.Draw(newImg, newImg.Bounds(), imgSrc, imgSrc.Bounds().Min, draw.Over)
@@ -195,14 +178,27 @@ func convert(w http.ResponseWriter, r *http.Request) {
 	gg.Green.Println("successfully converted and uploaded -> " + name + "_2x.jpg")
 }
 
+// start the server
 func main() {
 	rand.Seed(time.Now().Unix())
 	r := mux.NewRouter()
-	r.HandleFunc("/", form)
+
+	// main
+	fs := http.FileServer(http.Dir("./frontend"))
+	r.Handle("/", fs)
+
+	//r.HandleFunc("/", form)
+
+	// converting
 	r.HandleFunc("/convert", convert)
+
+	// clear terminal
 	print("\033[H\033[2J")
+
+	// start listening
 	gg.Blue.Println("waifus waiting on port 33457")
 	err := http.ListenAndServe(":"+"33457", r)
+
 	if err != nil {
 		log.Fatal("listen: ", err)
 	}
