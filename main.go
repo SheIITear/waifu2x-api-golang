@@ -98,7 +98,7 @@ func convert(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// if no matches or too many, don't allow the file
-	if matches1 != 1 || matches1 > 1 {
+	if matches1 != 1 {
 
 		gg.Red.Println("filetype not accepted\n" + "filename: " + header.Filename)
 
