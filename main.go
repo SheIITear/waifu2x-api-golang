@@ -23,23 +23,19 @@ import (
 )
 
 // check the string aka files
-func checkSubstrings(str string, subs ...string) (bool, int) {
+func checkSubstrings(str string, subs ...string) int {
 
 	matches := 0
-	isCompleteMatch := true
-
-	gg.Blue.Printf("security check, comparing: \"%s\" to: %s\n", str, subs)
+	gg.Blue.Printf("security check, comparing: \""+str+"\" to: %s\n", subs)
 
 	for _, sub := range subs {
 
 		if strings.Contains(str, sub) {
 			matches++
-		} else {
-			isCompleteMatch = false
 		}
 	}
 
-	return isCompleteMatch, matches
+	return matches
 }
 
 // do the actual job
@@ -92,51 +88,55 @@ func convert(w http.ResponseWriter, r *http.Request) {
 
 	// check that the file extension is allowed
 	ext := filepath.Ext(header.Filename)
-	inFile := fmt.Sprintf("/data/%v_%v", rand.Int63(), header.Filename)
-	isCompleteMatch1, matches1 := checkSubstrings(ext, ".jpeg", ".webp", ".jpg", ".png")
-	outFile := fmt.Sprintf("/data/%v_out.png", rand.Int63())
+	matches1 := checkSubstrings(ext, ".jpeg", ".webp", ".jpg", ".png")
 
-	if matches1 == 1 {
-		gg.Green.Println("filetype accepted\n" + "filename: " + header.Filename)
-		gg.Blue.Println("complete match:", isCompleteMatch1)
-
-		// if size is smaller than 1mb
-		if sizembs == 0 {
-			gg.Blue.Println("file size: <", sizembs, "mb")
-		} else {
-			gg.Blue.Println("file size:", sizembs, "mb")
-		}
-
-		gg.Blue.Println("enhancing... (this might take a while depending on the file size)")
-		err = ioutil.WriteFile(inFile, data, 7777)
-		if err != nil {
-			w.WriteHeader(400)
-			fmt.Fprintf(w, "write file: %v", err)
-			return
-		}
-
+	// get file size
+	if sizembs == 0 {
+		gg.Blue.Println("file size: <", sizembs, "mb")
 	} else {
-		gg.Red.Println("filetype not accepted\n" + "filename: " + header.Filename)
+		gg.Blue.Println("file size:", sizembs, "mb")
+	}
 
-		// if size is smaller than 1mb
-		if sizembs == 0 {
-			gg.Blue.Println("file size: <", sizembs, "mb")
-		} else {
-			gg.Blue.Println("file size:", sizembs, "mb")
-		}
+	// if no matches or too many, don't allow the file
+	if matches1 != 1 || matches1 > 1 {
+
+		gg.Red.Println("filetype not accepted\n" + "filename: " + header.Filename)
 
 		w.WriteHeader(400)
 		fmt.Fprintf(w, "%v <- not an image file", header.Filename)
 		return
 	}
 
-	// run the upscaling command
-	cmd := exec.Command("/opt/waifu2x-cpp/waifu2x-converter-cpp", fmt.Sprintf("-i %v", inFile), fmt.Sprintf("-o %v", outFile))
-	out, err := cmd.CombinedOutput()
+	gg.Green.Println("filetype accepted\n" + "filename: " + header.Filename)
+
+	// create files
+	inFile := fmt.Sprintf("/data/%v_%v", rand.Int63(), header.Filename)
+	outFile := fmt.Sprintf("/data/%v_out.png", rand.Int63())
+
+	gg.Blue.Println("enhancing... (this might take a while depending on the file size)")
+
+	// write given file to server
+	err = ioutil.WriteFile(inFile, data, 7777)
 
 	if err != nil {
 		w.WriteHeader(400)
-		fmt.Fprintf(w, "program err: %v %v", err, string(out))
+		fmt.Fprintf(w, "write file: %v", err)
+		return
+	}
+
+	// run the upscaling command
+	command := "/opt/waifu2x-cpp/waifu2x-converter-cpp" + " -i " + inFile + " -o " + outFile
+	cmdString := strings.TrimSuffix(command, "\n")
+	cmdString2 := strings.Fields(cmdString)
+	cmdOutput, err := exec.Command(cmdString2[0], cmdString2[1:]...).Output()
+
+	// get output
+	realout := string(cmdOutput[:])
+	realout = strings.TrimSuffix(realout, "\n")
+
+	if err != nil {
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "program err: %v %v", err, realout)
 		return
 	}
 
@@ -151,6 +151,7 @@ func convert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// decode png
 	imgSrc, err := png.Decode(bytes.NewBuffer(data))
 
 	if err != nil {
@@ -186,8 +187,6 @@ func main() {
 	// main
 	fs := http.FileServer(http.Dir("./frontend"))
 	r.Handle("/", fs)
-
-	//r.HandleFunc("/", form)
 
 	// converting
 	r.HandleFunc("/convert", convert)
