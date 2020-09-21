@@ -2,25 +2,53 @@
 <html>
 
 <!-- By ShellTear -->
-<title>waifu upgrader</title>
-<style>
-    body {
-        background-image: url('https://images.wallpapersden.com/image/download/blonde-blue-eye-anime-girl_65536_2560x1440.jpg');
-        background-attachment: fixed;
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-    }
-</style>
-<center>
+<title>waifu2x</title>
+
+<!-- Styling -->
+
+<head>
+    <style>
+        body {
+            background: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://i.pinimg.com/originals/09/24/4c/09244c7f7dd4d17b0484370f32db6641.gif');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+        
+        .keski {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<!-- The visible parts -->
+
+<body>
+    <div class="keski">
+        <b>
     <h1>
-        <color style="color:blue">Webp files have high chance of failing, so please avoid using them.</color>
+        <color style="color:darkblue">Webp files have high chance of failing, so please avoid using them.</color>
     </h1>
-    <form action="/convert" method="post" enctype="multipart/form-data">
+    <form action="/waifu2x" method="post" enctype="multipart/form-data" style="color: blue">
         <input type="file" name="file" accept="image/*">
         <input type="submit">
     </form>
-</center>
+    <p>
+        <color style="color: blue">
+            <br> Q: What is waifu2x?
+            <br> A: Waifu2x is an image upscaling tool for images that works the best on anime style.
+            <br><br> Q: Is there a limit?
+            <br> A: Only limit this site has is file size (4mb), because the server can't handle more.
+            <br><br> Q: How can I run this site?
+            <br> A: You can get it from my <a href=" https://github.com/SheIITear/waifu2x-api-golang">github</a>
+        </color>
+    </p>
+    </b>
+    </div>
 </body>
 
 </html>

@@ -23,7 +23,7 @@ import (
 )
 
 // check the string aka files
-func checkSubstrings(str string, subs ...string) int {
+func CheckName(str string, subs ...string) int {
 
 	matches := 0
 	gg.Blue.Printf("security check, comparing: \""+str+"\" to: %s\n", subs)
@@ -38,8 +38,29 @@ func checkSubstrings(str string, subs ...string) int {
 	return matches
 }
 
+// get ip
+func GetIP(r *http.Request) string {
+	forwarded := r.Header.Get("X-FORWARDED-FOR")
+	if forwarded != "" {
+		return forwarded
+	}
+	return r.RemoteAddr
+}
+
 // do the actual job
-func convert(w http.ResponseWriter, r *http.Request) {
+func upscale(w http.ResponseWriter, r *http.Request) {
+
+	// get ip of request sender
+	raw := GetIP(r)
+	ip := strings.Split(raw, ":")
+
+	// if not local, deny the request
+	if strings.Contains(string(raw[0]), "[::1]") {
+		gg.Red.Println("denied request from ip:", ip)
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "Not allowed")
+		return
+	}
 
 	// set max size and get the size of uploaded file
 	var maxSize int64 = 4
@@ -88,7 +109,7 @@ func convert(w http.ResponseWriter, r *http.Request) {
 
 	// check that the file extension is allowed
 	ext := filepath.Ext(header.Filename)
-	matches1 := checkSubstrings(ext, ".jpeg", ".webp", ".jpg", ".png")
+	matches1 := CheckName(ext, ".jpeg", ".webp", ".jpg", ".png")
 
 	// get file size
 	if sizembs == 0 {
@@ -167,8 +188,10 @@ func convert(w http.ResponseWriter, r *http.Request) {
 	var opt jpeg.Options
 	opt.Quality = 95
 
-	var extension = filepath.Ext(header.Filename)
-	var name = header.Filename[0 : len(header.Filename)-len(extension)]
+	// remove extension from the name
+	var name = header.Filename[0 : len(header.Filename)-len(ext)]
+
+	// send it
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%v_2x.jpg"`, name))
 	err = jpeg.Encode(w, newImg, &opt)
 
@@ -189,14 +212,14 @@ func main() {
 	r.Handle("/", fs)
 
 	// converting
-	r.HandleFunc("/convert", convert)
+	r.HandleFunc("/waifu2x", upscale)
 
 	// clear terminal
 	print("\033[H\033[2J")
 
 	// start listening
-	gg.Blue.Println("waifus waiting on port 33457")
-	err := http.ListenAndServe(":"+"33457", r)
+	gg.Blue.Println("Site running on port 2222")
+	err := http.ListenAndServe(":"+"2222", r)
 
 	if err != nil {
 		log.Fatal("listen: ", err)
