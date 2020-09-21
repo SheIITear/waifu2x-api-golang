@@ -1,5 +1,5 @@
 # waifu2x-api-golang
-This is a bit edited version from https://github.com/nothink/docker-waifu2x-converter-cpp and https://github.com/gladkikhartem/waifurun that runs on ubuntu and doesn't require gpu.
+This is a website/api made using https://github.com/nothink/docker-waifu2x-converter-cpp and go that runs on ubuntu and doesn't require gpu. (Heavily cpu depended)
 
 ~It can be tested on: https://upgradewaifu.gq~ Down
 
