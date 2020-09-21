@@ -20,7 +20,7 @@ cd cmake_tmp
 cmake -DCMAKE_INSTALL_PREFIX=/usr ../src
 
 # make and make install
-make
+make -j4
 make install
 
 ################################   WAIFU2X   ################################
@@ -31,7 +31,7 @@ set -eux && git clone https://github.com/DeadSix27/waifu2x-converter-cpp /opt/wa
 # build
 cd /opt/waifu2x-cpp
 cmake .
-make
+make -j4
 
 ################################     FIX    ################################
 
