@@ -38,29 +38,8 @@ func CheckName(str string, subs ...string) int {
 	return matches
 }
 
-// get ip
-func GetIP(r *http.Request) string {
-	forwarded := r.Header.Get("X-FORWARDED-FOR")
-	if forwarded != "" {
-		return forwarded
-	}
-	return r.RemoteAddr
-}
-
 // do the actual job
 func upscale(w http.ResponseWriter, r *http.Request) {
-
-	// get ip of request sender
-	raw := GetIP(r)
-	ip := strings.Split(raw, ":")
-
-	// if not local, deny the request
-	if strings.Contains(string(raw[0]), "[::1]") {
-		gg.Red.Println("denied request from ip:", ip)
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "Not allowed")
-		return
-	}
 
 	// set max size and get the size of uploaded file
 	var maxSize int64 = 4
