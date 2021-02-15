@@ -16,7 +16,7 @@ To run this, first build it:
 
 > sudo apt install ocl-icd-opencl-dev
 
-> cd waifu2x && sudo ./build.sh
+> sudo waifu2x/build.sh
 
 Lastly to run the api itself:
 
